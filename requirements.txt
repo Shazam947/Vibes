@@ -1,4 +1,4 @@
-pytgcalls==3.0.0.dev22
+pytgcalls
 ffmpeg-python
 Pyrogram
 youtube_dl
