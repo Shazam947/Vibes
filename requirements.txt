@@ -1,8 +1,5 @@
-py-tgcalls
+pytgcalls==2.2.5
+pyrogram==2.0.106
+youtube_dl==2021.12.17
 ffmpeg-python
-Pyrogram
-TgCrypto
-youtube_dl
 python-dotenv
-aiofiles
-aiohttp
