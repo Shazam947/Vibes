@@ -1,34 +1,26 @@
 import os
 import asyncio
-import aiohttp
-import youtube_dl
 import logging
 from dotenv import load_dotenv
 
 # Pyrogram
 from pyrogram import Client, filters
-# PyTgCalls (version 2.2.5 compatible imports)
-from pytgcalls import PyTgCalls
-from pytgcalls.types import Update, Stream
-from pytgcalls.exceptions import NoActiveGroupCall
+# Py-TgCalls (version 3.0.0.dev24 compatible imports)
+from py_tgcalls import PyTgCalls
+from py_tgcalls.types import StreamAudio, StreamVideo, JoinedGroupCall
+from py_tgcalls.exceptions import NoActiveGroupCall
 
-# FFmpeg for audio processing
-import ffmpeg
-
-# Load environment variables from .env file
+# --- Environment Variables ---
 load_dotenv()
+API_ID = os.getenv("API_ID")
+API_HASH = os.getenv("API_HASH")
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Basic logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Environment Variables ---
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-# Pyrogram client for bot (with session name)
-# This will create a file named "vc_bot.session"
+# Pyrogram client for bot
 app = Client(
     "vc_bot",
     api_id=API_ID,
@@ -36,22 +28,8 @@ app = Client(
     bot_token=BOT_TOKEN
 )
 
-# PyTgCalls client
+# Py-TgCalls client
 pytgcalls = PyTgCalls(app)
-
-# --- State Management ---
-current_playing = {} # {chat_id: "title of song"}
-
-# --- YouTube Downloader Options ---
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-    'outtmpl': 'downloads/%(id)s.%(ext)s',
-}
 
 # --- Command Handlers ---
 
@@ -67,18 +45,12 @@ async def join_command(client, message):
     await app.send_chat_action(chat_id, "typing")
 
     try:
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(link, download=True)
-            file_path = ydl.prepare_filename(info)
-            song_title = info.get('title', 'Unknown Title')
-
         await pytgcalls.join_group_call(
             chat_id,
-            Stream(file_path)
+            StreamAudio(link)
         )
-        current_playing[chat_id] = song_title
-        await message.reply_text(f"🎧 **Playing**: `{song_title}`")
-        logger.info(f"[{chat_id}] Started playing: {song_title}")
+        await message.reply_text(f"🎧 **Playing**: [Stream]({link})")
+        logger.info(f"[{chat_id}] Started playing: {link}")
 
     except NoActiveGroupCall:
         await message.reply_text("There is no active voice chat. Please start one and then try again.")
@@ -91,8 +63,6 @@ async def leave_command(client, message):
     chat_id = message.chat.id
     try:
         await pytgcalls.leave_group_call(chat_id)
-        if chat_id in current_playing:
-            del current_playing[chat_id]
         await message.reply_text("VC se nikal gaya hoon.")
         logger.info(f"[{chat_id}] Left the voice chat.")
     except Exception as e:
@@ -126,6 +96,4 @@ async def main():
     await app.idle()
 
 if __name__ == "__main__":
-    if not os.path.exists("downloads"):
-        os.makedirs("downloads")
     app.run(main())
