@@ -1,6 +1,7 @@
-pytgcalls
+py-tgcalls
 ffmpeg-python
 Pyrogram
+TgCrypto
 youtube_dl
 python-dotenv
 aiofiles
