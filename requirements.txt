@@ -1,5 +1,6 @@
-pytgcalls==2.2.5
-pyrogram==2.0.106
-youtube_dl==2021.12.17
+py-tgcalls==3.0.0.dev24
+pyrogram
+TgCrypto
 ffmpeg-python
+youtube_dl
 python-dotenv
