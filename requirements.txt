@@ -1,0 +1,7 @@
+pytgcalls==3.0.0.dev22
+ffmpeg-python
+Pyrogram
+youtube_dl
+python-dotenv
+aiofiles
+aiohttp
