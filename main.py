@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from pyrogram import Client, filters
 # PyTgCalls
 from pytgcalls import PyTgCalls
-from pytgcalls.types import Update, Stream
+from pytgcalls import Update, Stream
 from pytgcalls.exceptions import NoActiveGroupCall
 
 # FFmpeg for audio processing
